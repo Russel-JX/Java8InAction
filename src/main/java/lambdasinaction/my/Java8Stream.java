@@ -1,6 +1,7 @@
 package lambdasinaction.my;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 //https://www.runoob.com/java/java8-streams.html
@@ -130,6 +131,22 @@ public class Java8Stream {
 		//第一个参数是identity 初始值，第二个参数是一个function用来将流的每个元素映射成新的值或类型，第三个参数是BinaryOperator 用来对映射后的每个元素做归约处理，
 		String val3 = list.stream().collect(Collectors.reducing("100",(x)->{return Integer.toString(x);},(a,b)->{return b+a;}));
 		System.out.println(", after reducing value3 with 3 params :"+val3);//012334567899100
+
+
+		/*
+		Stream不能增加或删除元素，也不能修改元素。只能修改元素的属性。
+		用list.removeIf(Predicate). 删除list集合中所有满足条件的元素
+		或Iterator来增加或删除元素
+		 */
+		Student s_1 = new Student("ABC",23,true);
+		Student s_2 = new Student("DEF",33,true);
+		List<Student> stuList = new ArrayList<>();
+		stuList.add (s_1);
+		stuList.add (s_2);
+		System.out.println("origin stuList:"+stuList);//origin stuList:[Student{name='ABC', age=23}, Student{name='DEF', age=33}]
+		stuList.removeIf(isBaselineDDCNotInGrid(new ArrayList<>()));
+		System.out.println("new stuList:"+stuList);//new stuList:[]
+
 
 		String joinStr1 = Stream.of("I", "love", "China").collect(Collectors.joining());//拼接且不带分隔符
 		String joinStr2 = Stream.of("I", "love", "China").collect(Collectors.joining(","));//拼接且带分隔符","
@@ -340,6 +357,12 @@ public class Java8Stream {
 		});
 	}
 
+	// 判断当前学生是true,且不在stus集合中的学生
+	public static Predicate<Student> isBaselineDDCNotInGrid(List<Student> stus) {
+		return currentStu->currentStu.isGender() &&
+				!stus.stream().anyMatch(gridDDC->gridDDC.getName().equals(currentStu.getName()));
+	}
+
 	public static void parallelTest(){
 		Stream.of(1,2,3,4,5,6).forEach(e -> System.out.println("original stream:"+e));//1,2,3,4,5,6
 		for(int i=1;i<=3;i++) {
@@ -351,11 +374,19 @@ public class Java8Stream {
 	public static class Student{
 		private String name;
 		private int age;
+		private boolean gender;
 		public Student(String name, int age) {
 			super();
 			this.name = name;
 			this.age = age;
 		}
+
+		public Student(String name, int age, boolean gender) {
+			this.name = name;
+			this.age = age;
+			this.gender = gender;
+		}
+
 		public String getName() {
 			return name;
 		}
@@ -369,6 +400,14 @@ public class Java8Stream {
 			this.age = age;
 		}
 
+		public boolean isGender() {
+			return gender;
+		}
+
+		public void setGender(boolean gender) {
+			this.gender = gender;
+		}
+
 		@Override
 		public String toString() {
 			return "Student{" +
@@ -376,6 +415,7 @@ public class Java8Stream {
 					", age=" + age +
 					'}';
 		}
+
 	}
 
 
